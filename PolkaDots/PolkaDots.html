@@ -1,0 +1,117 @@
+<!--
+    UI plugins can assume jquery and bootstrap exist
+-->
+<script>
+var g_color_dot = null;
+var g_color_bg = null
+
+function hexToRgb(hex) {
+    // Remove the # character from the beginning of the hex string
+    hex = hex.replace('#', '');
+
+    // Convert the hex string to an integer
+    var hexInt = parseInt(hex, 16);
+
+    // Extract the red, green, and blue values from the integer
+    var red = (hexInt >> 16) & 255;
+    var green = (hexInt >> 8) & 255;
+    var blue = hexInt & 255;
+
+    // Return the RGB array
+    return [red, green, blue];
+}
+
+//===================================================================
+// Called when the UI for this feature is closed, before invoking
+// the def process(args) function in process_module.py
+//===================================================================
+function get_feature_params() {
+    var json = {
+        'dots_color':g_color_dot,
+        'background_color':g_color_bg
+    };
+    console.log(json)
+    // the following will be transfered to args['pparams']
+    // def process(args) function in process_module.py
+    return json
+}
+
+
+//===================================================================
+// Called when the UI for this feature is launched
+//===================================================================
+function init_webui(init_params, modal) {
+    // init_params - Parameters transfered by ["feature_webui"]["init_params"] 
+    //               returned by module_info function in process_module.py
+    // modal - The modal windows in which this UI will be displayed.
+    //         Can be used to set various CSS properties like max width etc.
+    var dotPicker = new iro.ColorPicker("#id_dot_color_picker", {
+        // Set the size of the color picker
+        width: 120,
+        layoutDirection: 'horizontal',
+        // Set the initial color to pure red
+        color: "#c00"
+    });
+
+    var bgPicker = new iro.ColorPicker('#id_background_color_picker', {
+        // Set the size of the color picker
+        width: 120,
+        layoutDirection: 'horizontal',
+        // Set the initial color to pure red
+        color: "#ccc"
+    });
+
+    dotPicker.on(['color:init', 'color:change'], function(color) {
+        // log the current color as a HEX string
+        $('#id_the_circle').css("background-color", color.hexString)
+        g_color_dot = hexToRgb(color.hexString)
+    });
+
+    bgPicker.on(['color:init', 'color:change'], function(color) {
+        // log the current color as a HEX string
+        $('#id_circ_container').css("background-color", color.hexString)
+        g_color_bg = hexToRgb(color.hexString)
+    });
+}
+
+</script>
+<style>
+.circle-container {
+    width: 150px;
+    height: 150px;
+    display: flex;
+    justify-content: center; /* Centers the blue circle horizontally */
+    align-items: center; /* Centers the blue circle vertically */
+  }
+  
+.the-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* Creates a circular shape */
+}
+</style>
+
+<table style="font-size: 13px;">
+<tr>
+    <td valign="top">
+        <div class="cls_photostack"></div>
+    </td>
+  <td>
+    <div id="id_circ_container" class="circle-container">
+        <div id="id_the_circle" class="the-circle"></div>
+        </div>
+    </div>
+  </td>
+</tr>
+</table>
+<hr />
+<div style="font-size:13px;">
+<div style="display:inline-block; margin-right:15px;">
+    <div >Select Dot Color</div>
+    <div id="id_dot_color_picker"></div>
+</div>
+<div style="display:inline-block">
+    <div>Select Background Color</div>
+    <div id="id_background_color_picker"></div>
+</div>
+</div>
